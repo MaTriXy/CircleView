@@ -19,8 +19,12 @@ public class CircleView extends View {
     private static String DEFAULT_TITLE = "Title";
     private static String DEFAULT_SUBTITLE = "Subtitle";
 
+    private static boolean DEFAULT_SHOW_TITLE = true;
+    private static boolean DEFAULT_SHOW_SUBTITLE = true;
+
     private static float DEFAULT_TITLE_SIZE = 25f;
     private static float DEFAULT_SUBTITLE_SIZE = 20f;
+    private static float DEFAULT_TITLE_SUBTITLE_SPACE = 0f;
 
     private static int DEFAULT_STROKE_COLOR = Color.CYAN;
     private static int DEFAULT_BACKGROUND_COLOR = Color.WHITE;
@@ -44,6 +48,10 @@ public class CircleView extends View {
     private float mSubtitleSize = DEFAULT_SUBTITLE_SIZE;
     private float mStrokeWidth = DEFAULT_STROKE_WIDTH;
     private float mFillRadius = DEFAULT_FILL_RADIUS;
+    private float mTitleSubtitleSpace = DEFAULT_TITLE_SUBTITLE_SPACE;
+
+    private boolean mShowTitle = DEFAULT_SHOW_TITLE;
+    private boolean mShowSubtitle = DEFAULT_SHOW_SUBTITLE;
 
     private TextPaint mTitleTextPaint;
     private TextPaint mSubTextPaint;
@@ -75,25 +83,27 @@ public class CircleView extends View {
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.CircleView, defStyle, 0);
 
-        if(a.hasValue(R.styleable.CircleView_titleText)){
-            mTitleText = a.getString(R.styleable.CircleView_titleText);
+        if(a.hasValue(R.styleable.CircleView_cv_titleText)){
+            mTitleText = a.getString(R.styleable.CircleView_cv_titleText);
         }
 
-        if(a.hasValue(R.styleable.CircleView_subtitleText)){
-            mSubtitleText = a.getString(R.styleable.CircleView_subtitleText);
+        if(a.hasValue(R.styleable.CircleView_cv_subtitleText)){
+            mSubtitleText = a.getString(R.styleable.CircleView_cv_subtitleText);
         }
 
-        mTitleColor = a.getColor(R.styleable.CircleView_titleColor,DEFAULT_TITLE_COLOR);
-        mSubtitleColor = a.getColor(R.styleable.CircleView_subtitleColor,DEFAULT_SUBTITLE_COLOR);
-        mBackgroundColor = a.getColor(R.styleable.CircleView_backgroundColorValue,DEFAULT_BACKGROUND_COLOR);
-        mStrokeColor = a.getColor(R.styleable.CircleView_strokeColorValue,DEFAULT_STROKE_COLOR);
-        mFillColor = a.getColor(R.styleable.CircleView_fillColor,DEFAULT_FILL_COLOR);
+        mTitleColor = a.getColor(R.styleable.CircleView_cv_titleColor,DEFAULT_TITLE_COLOR);
+        mSubtitleColor = a.getColor(R.styleable.CircleView_cv_subtitleColor,DEFAULT_SUBTITLE_COLOR);
+        mBackgroundColor = a.getColor(R.styleable.CircleView_cv_backgroundColorValue,DEFAULT_BACKGROUND_COLOR);
+        mStrokeColor = a.getColor(R.styleable.CircleView_cv_strokeColorValue,DEFAULT_STROKE_COLOR);
+        mFillColor = a.getColor(R.styleable.CircleView_cv_fillColor,DEFAULT_FILL_COLOR);
 
-        mTitleSize = a.getDimension(R.styleable.CircleView_titleSize,DEFAULT_TITLE_SIZE);
-        mSubtitleSize = a.getDimension(R.styleable.CircleView_subtitleSize,DEFAULT_SUBTITLE_SIZE);
+        mTitleSize = a.getDimension(R.styleable.CircleView_cv_titleSize,DEFAULT_TITLE_SIZE);
+        mSubtitleSize = a.getDimension(R.styleable.CircleView_cv_subtitleSize,DEFAULT_SUBTITLE_SIZE);
 
-        mStrokeWidth = a.getFloat(R.styleable.CircleView_strokeWidthSize,DEFAULT_STROKE_WIDTH);
-        mFillRadius = a.getFloat(R.styleable.CircleView_fillRadius,DEFAULT_FILL_RADIUS);
+        mStrokeWidth = a.getFloat(R.styleable.CircleView_cv_strokeWidthSize,DEFAULT_STROKE_WIDTH);
+        mFillRadius = a.getFloat(R.styleable.CircleView_cv_fillRadius,DEFAULT_FILL_RADIUS);
+
+        mTitleSubtitleSpace = a.getFloat(R.styleable.CircleView_cv_titleSubtitleSpace, DEFAULT_TITLE_SUBTITLE_SPACE);
 
         a.recycle();
 
@@ -139,6 +149,8 @@ public class CircleView extends View {
     }
 
     private void invalidateTextPaints(){
+        mTitleTextPaint.setColor(mTitleColor);
+        mSubTextPaint.setColor(mSubtitleColor);
         mTitleTextPaint.setTextSize(mTitleSize);
         mSubTextPaint.setTextSize(mSubtitleSize);
         invalidate();
@@ -186,16 +198,38 @@ public class CircleView extends View {
 
         canvas.drawOval(mInnerRectF, mStrokePaint);
 
-        canvas.drawText(mTitleText,
-                xPos,
-                yPos,
-                mTitleTextPaint);
+        if (mShowTitle) {
+            canvas.drawText(mTitleText,
+                    xPos,
+                    yPos,
+                    mTitleTextPaint);
+        }
 
-        canvas.drawText(mSubtitleText,
-                xPos,
-                yPos + 20,
-                mSubTextPaint);
+        if (mShowSubtitle) {
+            canvas.drawText(mSubtitleText,
+                    xPos,
+                    yPos + 20 + mTitleSubtitleSpace,
+                    mSubTextPaint);
+        }
 
+    }
+
+    /**
+     * Sets whether the view's title string will be shown.
+     * @param flag The boolean value.
+     */
+    public void setShowTitle(boolean flag){
+        this.mShowTitle = flag;
+        invalidate();
+    }
+
+    /**
+     * Sets whether the view's subtitle string will be shown.
+     * @param flag The boolean value.
+     */
+    public void setShowSubtitle(boolean flag){
+        this.mShowSubtitle = flag;
+        invalidate();
     }
 
     /**
@@ -351,4 +385,54 @@ public class CircleView extends View {
         invalidateTextPaints();
     }
 
+    /**
+     * Gets the title text color attribute value.
+     * @return The text color attribute value.
+     */
+    public int getTitleColor() {
+        return mTitleColor;
+    }
+
+    /**
+     * Sets the view's title text color attribute value.
+     * @param titleColor The title text color attribute value to use.
+     */
+    public void setTitleColor(int titleColor) {
+        mTitleColor =titleColor;
+        invalidateTextPaints();
+    }
+
+    /**
+     * Gets the subtitle text color attribute value.
+     * @return The text color attribute value.
+     */
+    public int getSubtitleColor() {
+        return mSubtitleColor;
+    }
+
+    /**
+     * Sets the view's subtitle text color attribute value.
+     * @param subtitleColor The subtitle text color attribute value to use.
+     */
+    public void setSubtitleColor(int subtitleColor) {
+        mSubtitleColor = subtitleColor;
+        invalidateTextPaints();
+    }
+
+    /**
+     * Gets the title subtitle space attribute value.
+     * @return The title subtitle space attribute value.
+     */
+    public float getTitleSubtitleSpace() {
+        return mTitleSubtitleSpace;
+    }
+
+    /**
+     * Sets the view's title subtitle space attribute value.
+     * @param titleSubtitleSpace The space between title and subtitle attribute value to use.
+     */
+    public void setTitleSubtitleSpace(float titleSubtitleSpace) {
+        this.mTitleSubtitleSpace = titleSubtitleSpace;
+        invalidateTextPaints();
+    }
 }
